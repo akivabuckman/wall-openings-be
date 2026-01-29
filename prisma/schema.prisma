@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OpeningShape {
+  RECTANGLE
+  CIRCLE
+}
+
+model Opening {
+  id           String       @id @default(uuid())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  width        Int?
+  height       Int?
+  radius       Int?
+  x            Int
+  elevation    Int
+  color        String?
+  shape        OpeningShape
+  fromPrevious Int
+  wall         Wall?        @relation(fields: [wallId], references: [id])
+  wallId       String?
+}
+
+model Wall {
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  openings  Opening[]
+}

@@ -1,9 +1,8 @@
 import { Server } from 'socket.io';
 import expressApp from './express';
 import logger from './libs/pino';
-import { DOMAIN_NAME } from './constants';
-
-const PORT = 5000;
+import { DOMAIN_NAME, PORT } from './constants';
+import { handleWallJoin } from './sockets/openingSockets';
 
 const httpServer = expressApp.listen(PORT, () => {
     logger.info(`Express server is running on http://localhost:${PORT}`);
@@ -18,11 +17,10 @@ const io = new Server(httpServer, {
 });
 
 io.on('connection', (socket) => {
-    logger.info(`Socket connected: ${socket.id}`);
-
-    // Add your event handlers here
+    socket.on('wall:join', (wallId: string) => {
+        handleWallJoin(socket, wallId);
+    });
 
     socket.on('disconnect', () => {
-        logger.info(`Socket disconnected: ${socket.id}`);
     });
 });
