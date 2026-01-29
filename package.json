@@ -1,0 +1,24 @@
+{
+  "name": "wall-openings-be",
+  "version": "1.0.0",
+  "main": "server.ts",
+  "scripts": {
+    "dev": "nodemon ./src/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^25.0.10",
+    "@types/ws": "^8.18.1",
+    "socket.io": "^4.8.3",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.6",
+    "express": "^5.2.1",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2"
+  }
+}
