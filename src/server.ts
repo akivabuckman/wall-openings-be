@@ -1,7 +1,7 @@
 import { Server } from 'socket.io';
 import express from 'express';
 
-const PORT = 3500;
+const PORT = 5000;
 const ADMIN = "Admin";
 
 const server = express();
