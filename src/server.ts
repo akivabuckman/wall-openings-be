@@ -2,7 +2,7 @@ import { Server } from 'socket.io';
 import expressApp from './express';
 import logger from './libs/pino';
 import { DOMAIN_NAME, PORT } from './constants';
-import { handleWallJoin } from './sockets/openingSockets';
+import { handleWallJoin } from './controllers/openingControllers';
 
 const httpServer = expressApp.listen(PORT, () => {
     logger.info(`Express server is running on http://localhost:${PORT}`);
