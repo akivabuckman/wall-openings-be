@@ -1,5 +1,6 @@
 import { Socket } from "socket.io";
 import logger from "../libs/pino";
+import { emitToSocket } from "../socket/sockets";
 
 export function tryCatchSocket<T extends (...args: any[]) => Promise<any>>(
 	fn: T
@@ -10,7 +11,7 @@ export function tryCatchSocket<T extends (...args: any[]) => Promise<any>>(
 			await fn(...args);
 		} catch (err: any) {
 			logger.error(err);
-			socket.emit("error", { message: "Internal server error", details: err?.message || String(err) });
+            emitToSocket(socket, "error", { type: "error", payload: { message: "Internal server error", details: err?.message || String(err) } });
 		}
 	};
 }

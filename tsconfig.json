@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
     "target": "es2018",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "rootDir": "./src",
     "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,  
     "strict": true,
     "skipLibCheck": true
-  }
+  },
+  "exclude": [
+    "prisma.config.ts"
+  ]
 }

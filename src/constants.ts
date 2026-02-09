@@ -2,7 +2,7 @@ import { Opening, OpeningShape } from "./types";
 
 export const DOMAIN_NAME: string = "https://akivabuckman.com";
 export const PORT: number = Number(process.env.PORT) || 5000;
-export const defaultOpenings: Opening[] = [
+export const defaultOpenings = [
     {
         shape: OpeningShape.RECTANGLE,
         width: 100,
@@ -11,7 +11,7 @@ export const defaultOpenings: Opening[] = [
         elevation: 0,
         color: "red",
         fromPrevious: 110,
-    }, 
+    },
     {
         shape: OpeningShape.CIRCLE,
         radius: 15,

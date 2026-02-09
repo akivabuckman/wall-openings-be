@@ -1,8 +1,9 @@
 import logger from "../libs/pino";
 import { prisma } from "../libs/prisma";
-import { OpeningWithWallId } from "../types";
+import { generateWallId } from "../services/openingServices";
+import { OpeningWithOnlyWallId } from "../types";
 
-export const addOpening = async (opening: OpeningWithWallId) => {
+export const addOpening = async (opening: OpeningWithOnlyWallId) => {
     const { wallId, ...openingData } = opening;
     logger.info(`Adding ${opening.shape} opening to wall ${wallId}...`);
     const newOpening = await prisma.opening.create({
@@ -12,7 +13,7 @@ export const addOpening = async (opening: OpeningWithWallId) => {
         },
     });
     logger.info(`Added opening ${newOpening.id} to wall ${wallId}`);
-    return newOpening;
+    return newOpening.id;
 };
 
 export const getWallById = async (wallId: string) => {
@@ -23,7 +24,8 @@ export const getWallById = async (wallId: string) => {
     return wall;
 };
 
-export const addWall = async (wallId: string, name?: string) => {
+export const addWall = async (name?: string) => {
+    const wallId = generateWallId();
     logger.info(`Adding new wall${name ? ` with name ${name}` : ''}...`);
     const newWall = await prisma.wall.create({
         data: {
@@ -32,5 +34,15 @@ export const addWall = async (wallId: string, name?: string) => {
         },
     });
     logger.info(`Added new wall with id ${newWall.id}`);
-    return newWall;
+    return newWall.id;
+};
+
+export const patchOpening = async (openingId: string, updates: Partial<Omit<OpeningWithOnlyWallId, 'wallId'>>) => {
+    logger.info(`Patching opening ${openingId} with updates: ${JSON.stringify(updates)}...`);
+    const updatedOpening = await prisma.opening.update({
+        where: { id: openingId },
+        data: updates,
+    });
+    logger.info(`Patched opening ${openingId}`);
+    return updatedOpening;
 };

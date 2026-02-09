@@ -7,10 +7,10 @@ interface OpeningBase {
   x: number;
   elevation: number;
   color: string;
-  id?: string;
+  id: string;
   fromPrevious: number;
   xIndex?: number;
-  wallId?: string;
+  wallId: string;
 }
 
 export interface RectangleOpening extends OpeningBase {
@@ -26,4 +26,12 @@ export interface CircleOpening extends OpeningBase {
 
 export type Opening = RectangleOpening | CircleOpening;
 
-export type OpeningWithWallId = Opening & { wallId: string };
+export type OpeningWithOnlyWallId = Omit<Opening, 'id'> & { wallId: string };
+
+export type ResponseType = "error" | "success" | "info" | "request";
+
+export type SocketResponse = {
+    type: ResponseType;
+    source?: "server";
+    payload?: any;
+}
