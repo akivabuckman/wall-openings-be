@@ -1,3 +1,4 @@
+import { defaultOpenings } from "../constants";
 import logger from "../libs/pino";
 import { prisma } from "../libs/prisma";
 import { generateWallId } from "../services/openingServices";
@@ -46,3 +47,24 @@ export const patchOpening = async (openingId: string, updates: Partial<Omit<Open
     logger.info(`Patched opening ${openingId}`);
     return updatedOpening;
 };
+
+export const deleteOpeningFromDb = async (openingId: string) => {
+    logger.info(`Deleting opening ${openingId}...`);
+    await prisma.opening.delete({
+        where: { id: openingId },
+    });
+    logger.info(`Deleted opening ${openingId}`);
+};
+
+export const addNewOpeningToDb = async (wallId: string) => {
+    logger.info(`Adding new opening to wall ${wallId}...`);
+    const defaultOpening = defaultOpenings[0];
+    const newOpening = await prisma.opening.create({
+        data: {
+            ...defaultOpening,
+            wall: { connect: { id: wallId } },
+        },
+    });
+    logger.info(`Added new opening to wall ${wallId}`);
+    return newOpening;
+}

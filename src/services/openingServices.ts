@@ -3,7 +3,7 @@ import { defaultOpenings } from "../constants"
 import logger from "../libs/pino";
 import { addOpening, addWall } from "../models/openingModel";
 import { OpeningWithOnlyWallId, SocketResponse } from "../types";
-import { nanoid } from "nanoid";
+import { customAlphabet, nanoid } from "nanoid";
 import { emitToRoom, joinWall } from "../socket/sockets";
 
 const addDefaultOpenings = async (wallId: string) => {
@@ -24,7 +24,7 @@ const addDefaultOpenings = async (wallId: string) => {
     return createdOpenings;
 };
 
-export const handleDefaults = async (socket: Socket) => {
+export const handleDefaults = async () => {
     const wallId = await addWall();
     const addedOpenings = await addDefaultOpenings(wallId);
     const response: SocketResponse = {
@@ -35,11 +35,11 @@ export const handleDefaults = async (socket: Socket) => {
         },
         source: "server",
     }
-    joinWall(socket, wallId);
     return emitToRoom(wallId, "initialOpenings", response);
 };
 
 export const generateWallId = () => {
-    const wallId = nanoid(8).toUpperCase();
+    const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 8);
+    const wallId = nanoid(8);
     return wallId;
 };
