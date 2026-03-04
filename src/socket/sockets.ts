@@ -3,8 +3,8 @@ import logger from "../libs/pino";
 import { SocketResponse } from "../types";
 import { io } from "../server";
 
-export const joinWall = (socket: Socket, wallId: string) => {
-    socket.join(wallId);
+export const joinWall = async (socket: Socket, wallId: string) => {
+    await socket.join(wallId);
     emitToSocket(socket, "joinedWall", { type: "success", source: "server", payload: { wallId } });
     logger.info(`Socket ${socket.id} joined room ${wallId}`);
 };

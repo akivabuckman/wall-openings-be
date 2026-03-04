@@ -1,4 +1,4 @@
-import { Opening, OpeningShape } from "./types";
+import { OpeningShape } from "./types";
 
 export const DOMAIN_NAME: string = "https://akivabuckman.com";
 export const PORT: number = Number(process.env.PORT) || 5000;
@@ -30,3 +30,6 @@ export const defaultOpenings = [
         fromPrevious: 80,
     }
 ];
+
+export const WINDOW_MS = 60_000;
+export const MAX_REQUESTS = 10;

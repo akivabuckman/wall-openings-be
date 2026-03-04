@@ -34,4 +34,9 @@ export type SocketResponse = {
     type: ResponseType;
     source?: "server";
     payload?: any;
+};
+
+export interface RateLimitEntry {
+    count: number;
+    windowStart: number;
 }

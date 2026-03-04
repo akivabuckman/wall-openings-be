@@ -4,10 +4,13 @@ import logger from './libs/pino';
 import { DOMAIN_NAME, PORT } from './constants';
 import { handleOpeningChange, handleWallJoin, handleOpeningDelete, handleNewOpeningRequest } from './controllers/openingControllers';
 import { Opening } from './types';
+import { socketWallJoinRateLimiter } from './middleware/socketWallJoinLimiter';
+import { emitToSocket } from './socket/sockets';
 
 const httpServer = expressApp.listen(PORT, () => {
     logger.info(`Express server is running on http://localhost:${PORT}`);
 });
+
 
 export const io = new Server(httpServer, {
     cors: {
@@ -18,8 +21,20 @@ export const io = new Server(httpServer, {
 });
 
 io.on('connection', (socket) => {
+    socket.onAny((event, source, ...args) => {
+        if (source === "server") return;
+        logger.info({ event, args, socketId: socket.id }, `Socket event received`);
+    });
+
     socket.on('wallJoin', ({wallId}: {wallId: string | null, source: string}) => {
-        handleWallJoin(socket, wallId);
+        socketWallJoinRateLimiter(socket, async (err) => {
+            console.log("wtffffffff")
+            if (err) {
+                logger.error(`Rate limit exceeded for socket ${socket.id} on wallJoin: ${err.message}`);
+                return emitToSocket(socket, "error", { type: "error", payload: { message: err.message } });
+            } 
+            await handleWallJoin(socket, wallId);
+        });
     });
 
     socket.on('openingChange', (data: {opening: Opening, source: string}) => {

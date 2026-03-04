@@ -4,7 +4,7 @@ import logger from "../libs/pino";
 import { addOpening, addWall } from "../models/openingModel";
 import { OpeningWithOnlyWallId, SocketResponse } from "../types";
 import { customAlphabet, nanoid } from "nanoid";
-import { emitToRoom, joinWall } from "../socket/sockets";
+import { emitToRoom, emitToSocket, joinWall } from "../socket/sockets";
 
 const addDefaultOpenings = async (wallId: string) => {
     logger.info(`Adding wall and default openings to wall ${wallId}...`);
@@ -24,7 +24,7 @@ const addDefaultOpenings = async (wallId: string) => {
     return createdOpenings;
 };
 
-export const handleDefaults = async () => {
+export const handleDefaults = async (socket: Socket) => {
     const wallId = await addWall();
     const addedOpenings = await addDefaultOpenings(wallId);
     const response: SocketResponse = {
@@ -35,7 +35,9 @@ export const handleDefaults = async () => {
         },
         source: "server",
     }
-    return emitToRoom(wallId, "initialOpenings", response);
+    // return emitToRoom(wallId, "initialOpenings", response);
+    joinWall(socket, wallId);
+    return emitToSocket(socket, "initialOpenings", response);
 };
 
 export const generateWallId = () => {
