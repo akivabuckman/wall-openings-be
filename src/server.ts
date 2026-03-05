@@ -27,14 +27,17 @@ io.on('connection', (socket) => {
     });
 
     socket.on('wallJoin', ({wallId}: {wallId: string | null, source: string}) => {
-        socketWallJoinRateLimiter(socket, async (err) => {
-            console.log("wtffffffff")
-            if (err) {
-                logger.error(`Rate limit exceeded for socket ${socket.id} on wallJoin: ${err.message}`);
-                return emitToSocket(socket, "error", { type: "error", payload: { message: err.message } });
-            } 
-            await handleWallJoin(socket, wallId);
-        });
+        if (!wallId || wallId === "") {
+            socketWallJoinRateLimiter(socket, async (err) => {
+                if (err) {
+                    logger.error(`Rate limit exceeded for socket ${socket.id} on wallJoin: ${err.message}`);
+                    return emitToSocket(socket, "error", { type: "error", payload: { message: err.message } });
+                }
+                await handleWallJoin(socket, wallId);
+            });
+        } else {
+            handleWallJoin(socket, wallId);
+        }
     });
 
     socket.on('openingChange', (data: {opening: Opening, source: string}) => {

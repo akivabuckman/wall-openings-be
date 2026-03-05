@@ -31,5 +31,5 @@ export const defaultOpenings = [
     }
 ];
 
-export const WINDOW_MS = 60_000;
+export const WINDOW_MS = 60 * 60 * 1000;
 export const MAX_REQUESTS = 10;

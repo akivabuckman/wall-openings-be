@@ -15,7 +15,7 @@ export const handleWallJoin = tryCatchSocket(async (socket: Socket, wallId: stri
     if (!existingWall) {
         const response: SocketResponse = {
             type: "error",
-            payload: `Wall with id ${wallId} does not exist.`,
+            payload: { message: `Wall with id ${wallId} does not exist.` },
         };
         return emitToSocket(socket, "error", response);
     }
