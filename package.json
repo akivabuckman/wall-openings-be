@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "nodemon --exec tsx ./src/server.ts",
     "start": "node ./dist/server.js",
-    "build": "tsc"
+    "build": "tsc",
+    "prisma:generate": "npx prisma generate",
+    "prestart": "npx prisma migrate deploy"
   },
   "keywords": [],
   "author": "",

@@ -15,6 +15,7 @@ WORKDIR /app
 
 COPY --from=build /app/package*.json ./
 RUN npm ci --omit=dev
+RUN npm run prisma:generate
 
 COPY --from=build /app/dist ./dist
 
