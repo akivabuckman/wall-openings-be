@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OpeningShape {
+  RECTANGLE
+  CIRCLE
+}
+
+model Opening {
+  id           String       @id @default(uuid())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  width        Int?
+  height       Int?
+  radius       Int?
+  x            Int
+  elevation    Int
+  color        String?
+  shape        OpeningShape
+  fromPrevious Int
+  wall         Wall?        @relation(fields: [wallId], references: [id], onDelete: Cascade)
+  wallId       String?
+}
+
+model Wall {
+  id        String    @id @default(uuid())
+  name      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  openings  Opening[]
+}

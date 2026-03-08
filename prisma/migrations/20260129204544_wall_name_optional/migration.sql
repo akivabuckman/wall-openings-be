@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Wall" ALTER COLUMN "name" DROP NOT NULL;
