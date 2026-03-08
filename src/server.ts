@@ -18,6 +18,7 @@ export const io = new Server(httpServer, {
             ? DOMAIN_NAME
             : "http://localhost:5173",
     },
+    path: "/wall-openings/api",
 });
 
 io.on('connection', (socket) => {
