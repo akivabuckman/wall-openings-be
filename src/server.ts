@@ -8,7 +8,7 @@ import { socketWallJoinRateLimiter } from './middleware/socketWallJoinLimiter';
 import { emitToSocket } from './socket/sockets';
 
 const httpServer = expressApp.listen(PORT, () => {
-    logger.info(`Express server is running on http://localhost:${PORT}`);
+    logger.info(`Express server is running on port ${PORT}`);
 });
 
 

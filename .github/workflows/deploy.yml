@@ -65,4 +65,6 @@ jobs:
               --name wall-openings-be \
               --network web \
               -p 127.0.0.1:5000:5000 \
+              -e NODE_ENV=production \
+              -e DATABASE_URL='${{ secrets.DATABASE_URL }}' \
               ${{ vars.ECR_REGISTRY }}/wall-openings-be:${{ env.GIT_SHA }}
