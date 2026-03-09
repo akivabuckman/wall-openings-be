@@ -47,6 +47,16 @@ jobs:
         run: |
           docker push ${{ vars.ECR_REGISTRY }}/wall-openings-be:$GIT_SHA
 
+      - name: Clean up Docker resources on EC2
+        uses: appleboy/ssh-action@v0.1.9
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker image prune -a -f
+            docker volume prune -f
+
       - name: Deploy container on EC2
         uses: appleboy/ssh-action@v0.1.9
         with:
