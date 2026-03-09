@@ -34,7 +34,6 @@ export const handleDefaults = async (socket: Socket) => {
         },
         source: "server",
     }
-    // return emitToRoom(wallId, "initialOpenings", response);
     joinWall(socket, wallId);
     return emitToSocket(socket, "initialOpenings", response);
 };
