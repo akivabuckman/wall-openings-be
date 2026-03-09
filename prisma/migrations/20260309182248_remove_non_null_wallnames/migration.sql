@@ -1,0 +1,2 @@
+DELETE FROM Wall
+WHERE name IS NOT NULL;

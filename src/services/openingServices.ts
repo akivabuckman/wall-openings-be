@@ -3,12 +3,11 @@ import { defaultOpenings } from "../constants"
 import logger from "../libs/pino";
 import { addOpening, addWall } from "../models/openingModel";
 import { OpeningWithOnlyWallId, SocketResponse } from "../types";
-import { customAlphabet, nanoid } from "nanoid";
-import { emitToRoom, emitToSocket, joinWall } from "../socket/sockets";
+import { customAlphabet } from "nanoid";
+import { emitToSocket, joinWall } from "../socket/sockets";
 
 const addDefaultOpenings = async (wallId: string) => {
     logger.info(`Adding wall and default openings to wall ${wallId}...`);
-    await addWall(wallId);
     const createdOpenings = await Promise.all(
         defaultOpenings.map(async (opening) => {
             const openingWithWallId: OpeningWithOnlyWallId = { ...opening, wallId };
