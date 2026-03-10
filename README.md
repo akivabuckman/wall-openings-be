@@ -2,7 +2,7 @@
 
 Real-time collaborative backend for the Wall Openings editor. Manages walls and openings via Socket.IO events, persists data in PostgreSQL through Prisma, and exposes a small REST API for server-side operations.
 
-> **Frontend repo:** [_link to frontend repo here_](https://github.com/akivabuckman/wall-openings)
+> **Frontend repo:** [akivabuckman/wall-openings](https://github.com/akivabuckman/wall-openings)
 
 ---
 
