@@ -68,3 +68,16 @@ export const addNewOpeningToDb = async (wallId: string) => {
     logger.info(`Added new opening to wall ${wallId}`);
     return newOpening;
 }
+
+export const deleteOldWalls = async (startDate: Date) => {
+    logger.info(`Deleting walls updated before ${startDate.toISOString()}...`);
+    const deletedWalls = await prisma.wall.deleteMany({
+        where: {
+            updatedAt: {
+                lt: startDate,
+            },
+        },
+    });
+    logger.info(`Deleted ${deletedWalls.count} walls updated before ${startDate.toISOString()}`);
+    return deletedWalls
+};
