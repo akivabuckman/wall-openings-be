@@ -1,6 +1,8 @@
 import { Socket } from "socket.io";
 import logger from "../libs/pino";
-import { addNewOpeningToDb, deleteOpeningFromDb, getWallById, patchOpening } from "../models/openingModel";
+import { addNewOpeningToDb, deleteOpeningFromDb, deleteOldWalls, getWallById, patchOpening } from "../models/openingModel";
+import { defaultWallExpirationDays } from "../constants";
+import { Request, Response } from "express";
 import { handleDefaults } from "../services/openingServices";
 import { tryCatchSocket } from "../utils/tryCatch";
 import { Opening, SocketResponse } from "../types";
@@ -62,3 +64,20 @@ export const handleNewOpeningRequest = tryCatchSocket(async (socket: Socket, wal
     };
     return emitToRoom(wallId, "newOpening", response);
 });
+
+export const handleDeleteOld = async (req: Request, res: Response) => {
+    const givenDaysBack = req.query.daysBack;
+    if (givenDaysBack && isNaN(Number(givenDaysBack))) {
+        return res.status(400).json({ message: `Invalid daysBack query parameter: '${givenDaysBack}'` });
+    }
+    const daysBackNumber = Number(givenDaysBack) || defaultWallExpirationDays;
+    if (daysBackNumber < defaultWallExpirationDays) {
+        return res.status(400).json({ message: `daysBack query parameter cannot be less than ${defaultWallExpirationDays}:, not '${givenDaysBack}'` });
+    }
+    const daysBackDate = new Date(Date.now() - daysBackNumber * 24 * 60 * 60 * 1000);
+    const deletedWalls = await deleteOldWalls(daysBackDate);
+    res.status(200).json({ 
+        message: `Deleted ${deletedWalls.count} walls updated before ${daysBackDate.toISOString()}`,
+        count: deletedWalls.count 
+    });
+};
