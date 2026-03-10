@@ -7,17 +7,23 @@
     "start": "node ./dist/server.js",
     "build": "tsc",
     "prisma:generate": "npx prisma generate",
-    "prestart": "npx prisma migrate deploy"
+    "prestart": "npx prisma migrate deploy",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.0.10",
+    "@types/supertest": "^7.2.0",
     "@types/ws": "^8.18.1",
     "dotenv": "^17.3.1",
+    "jest": "^30.3.0",
     "prisma": "^6.19.2",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.6",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
