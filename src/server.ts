@@ -2,7 +2,7 @@ import { Server } from 'socket.io';
 import expressApp from './express';
 import logger from './libs/pino';
 import { DOMAIN_NAME, PORT } from './constants';
-import { handleOpeningChange, handleWallJoin, handleOpeningDelete, handleNewOpeningRequest } from './controllers/openingControllers';
+import { handleOpeningChange, handleWallJoin, handleOpeningDelete, handleNewOpeningRequest, handleReconnect } from './controllers/openingControllers';
 import { Opening } from './types';
 import { socketWallJoinRateLimiter } from './middleware/socketWallJoinLimiter';
 import { emitToSocket } from './socket/sockets';
@@ -51,6 +51,10 @@ io.on('connection', (socket) => {
 
     socket.on('requestNewOpening', (data: { wallId: string, source: string }) => {
         handleNewOpeningRequest(socket, data.wallId);
+    });
+
+    socket.on('requestReconnect', (data: { wallId: string; lastEntryId: string; source: string }) => {
+        handleReconnect(socket, data.wallId, data.lastEntryId);
     });
 
     socket.on('disconnect', () => {

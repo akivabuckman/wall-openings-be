@@ -15,6 +15,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/ioredis": "^4.28.10",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.0.10",
     "@types/supertest": "^7.2.0",
@@ -32,6 +33,7 @@
     "@types/express": "^5.0.6",
     "express": "^5.2.1",
     "helmet": "^8.1.0",
+    "ioredis": "^5.10.0",
     "nanoid": "^5.1.6",
     "nodemon": "^3.1.11",
     "pino-http": "^11.0.0",

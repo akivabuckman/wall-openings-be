@@ -30,10 +30,17 @@ export type OpeningWithOnlyWallId = Omit<Opening, 'id'> & { wallId: string };
 
 export type ResponseType = "error" | "success" | "info" | "request";
 
+export type SocketMeta = {
+    lastEntryId?: string;
+    eventId?: string;
+    replayed?: boolean;
+};
+
 export type SocketResponse = {
     type: ResponseType;
     source?: "server";
     payload?: any;
+    _meta?: SocketMeta;
 };
 
 export interface RateLimitEntry {
