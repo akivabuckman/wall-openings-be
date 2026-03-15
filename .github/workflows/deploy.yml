@@ -85,4 +85,5 @@ jobs:
               -p 127.0.0.1:5000:5000 \
               -e NODE_ENV=production \
               -e DATABASE_URL='${{ secrets.DATABASE_URL }}' \
+              -e REDIS_URL='${{ secrets.REDIS_URL }}' \
               ${{ vars.ECR_REGISTRY }}/wall-openings-be:${{ env.GIT_SHA }}

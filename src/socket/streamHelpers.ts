@@ -1,10 +1,8 @@
 import { nanoid } from "nanoid";
-import { redisClient } from "../libs/redis";
+import { isRedisAvailable, redisClient } from "../libs/redis";
 import logger from "../libs/pino";
 import { SocketResponse } from "../types";
-
-const STREAM_MAX_LEN = 500;       // max events retained per wall
-const STREAM_TTL_SECONDS = 3600;  // stream expires after 1 hour of inactivity
+import { STREAM_MAX_LEN, STREAM_TTL_SECONDS, UNDO_STACK_MAX } from "../constants";
 
 const streamKey = (wallId: string) => `stream:wall:${wallId}`;
 
@@ -18,6 +16,7 @@ export const appendToStream = async (
     event: string,
     response: SocketResponse
 ): Promise<string> => {
+    if (!isRedisAvailable) return "0-0";
     const key = streamKey(wallId);
     const eventId = nanoid();
 
@@ -36,10 +35,42 @@ export const appendToStream = async (
     return entryId!;
 };
 
+const undoKey = (wallId: string) => `undo:wall:${wallId}`;
+
+export type UndoEntry =
+    | { type: "update"; openingId: string; before: Record<string, unknown> }
+    | { type: "create"; openingId: string; wallId: string }
+    | { type: "delete"; openingId: string; before: Record<string, unknown> };
+
+/**
+ * Pushes an undo entry onto the wall's undo stack (capped at UNDO_STACK_MAX).
+ */
+export const pushUndoStack = async (wallId: string, entry: UndoEntry): Promise<void> => {
+    if (!isRedisAvailable) return;
+    const key = undoKey(wallId);
+    await redisClient.rpush(key, JSON.stringify(entry));
+    await redisClient.ltrim(key, -UNDO_STACK_MAX, -1);
+    await redisClient.expire(key, STREAM_TTL_SECONDS);
+    logger.info(`Pushed undo entry for opening ${entry.openingId} on wall ${wallId}`);
+};
+
+/**
+ * Pops the most recent undo entry from the wall's undo stack.
+ * Returns null if the stack is empty.
+ */
+export const popUndoStack = async (wallId: string): Promise<UndoEntry | null> => {
+    if (!isRedisAvailable) return null;
+    const key = undoKey(wallId);
+    const raw = await redisClient.rpop(key);
+    if (!raw) return null;
+    return JSON.parse(raw) as UndoEntry;
+};
+
 /**
  * Returns the latest entry ID in the wall's stream, or "0-0" if the stream is empty.
  */
 export const getLastEntryId = async (wallId: string): Promise<string> => {
+    if (!isRedisAvailable) return "0-0";
     const key = streamKey(wallId);
     const entries = await redisClient.xrevrange(key, "+", "-", "COUNT", 1);
     return entries.length > 0 ? entries[0][0] : "0-0";
@@ -54,6 +85,7 @@ export const replayStream = async (
     wallId: string,
     lastEntryId: string
 ): Promise<{ entryId: string; eventId: string; event: string; response: SocketResponse }[]> => {
+    if (!isRedisAvailable) return [];
     const key = streamKey(wallId);
 
     const entries = await redisClient.xrange(key, lastEntryId, "+");

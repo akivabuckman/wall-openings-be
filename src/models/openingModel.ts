@@ -38,6 +38,24 @@ export const addWall = async (name?: string) => {
     return newWall.id;
 };
 
+export const getOpeningById = async (openingId: string) => {
+    return prisma.opening.findUnique({ where: { id: openingId } });
+};
+
+export const restoreOpening = async (opening: Record<string, unknown>) => {
+    const { wallId, id, createdAt, updatedAt, ...data } = opening;
+    logger.info(`Restoring opening ${id} to wall ${wallId}...`);
+    const restored = await prisma.opening.create({
+        data: {
+            id: id as string,
+            ...(data as any),
+            wall: { connect: { id: wallId as string } },
+        },
+    });
+    logger.info(`Restored opening ${restored.id} to wall ${wallId}`);
+    return restored;
+};
+
 export const patchOpening = async (openingId: string, updates: Partial<Omit<OpeningWithOnlyWallId, 'wallId'>>) => {
     logger.info(`Patching opening ${openingId} with updates: ${JSON.stringify(updates)}...`);
     const updatedOpening = await prisma.opening.update({
