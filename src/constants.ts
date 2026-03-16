@@ -34,3 +34,7 @@ export const defaultOpenings = [
 export const WINDOW_MS = 60 * 60 * 1000;
 export const MAX_REQUESTS = 10;
 export const defaultWallExpirationDays = 7;
+export const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
+export const STREAM_MAX_LEN = 500;       // max events retained per wall
+export const STREAM_TTL_SECONDS = 3600;  // stream expires after 1 hour of inactivity
+export const UNDO_STACK_MAX = 20;
