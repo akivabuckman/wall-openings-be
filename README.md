@@ -19,8 +19,9 @@ Browser (React + Konva)
         │
         └──▶  Backend container   (Express + Socket.IO, this repo, on :5000)
                     │
-                    ▼
-             PostgreSQL on AWS RDS  (walls & openings)
+                    ├──▶ PostgreSQL on AWS RDS       (walls & openings)
+                    │
+                    └──▶ Redis on AWS ElastiCache    (undo stacks & event streams)  [disabled — see note below]
 
 AWS Lambda  ──▶  DELETE /old-walls  (scheduled cleanup — removes walls not updated in 7+ days)
 ```
@@ -37,6 +38,7 @@ Everything runs on a single **AWS EC2** instance (ap-southeast-1). **Nginx** han
 | Real-time comms | [Socket.IO](https://socket.io) |
 | ORM | [Prisma](https://www.prisma.io) |
 | Database | [PostgreSQL](https://www.postgresql.org) (AWS RDS) |
+| Cache / Pub-Sub | [Redis](https://redis.io) (AWS ElastiCache) — _disabled_ |
 | Logging | [Pino](https://getpino.io) |
 | Container | [Docker](https://www.docker.com) (multi-stage build) |
 | CI/CD | GitHub Actions → AWS ECR → AWS EC2 |
@@ -166,6 +168,31 @@ The pipeline ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)):
 | `EC2_SSH_KEY` | Secret | Private SSH key for EC2 |
 | `DATABASE_URL` | Secret | Production PostgreSQL connection string |
 | `ECR_REGISTRY` | Variable | ECR registry URL |
+
+---
+
+## Undo & Event Replay *(disabled)*
+
+The backend was extended to support a **per-wall undo stack** and **Socket.IO event replay** using **AWS ElastiCache (Redis)**.
+
+### How it works
+
+Every wall has two Redis data structures:
+
+| Key pattern | Type | Purpose |
+|---|---|---|
+| `stream:wall:{wallId}` | Redis Stream | Ordered log of all broadcast events (capped at 500 entries, TTL 1 hour) |
+| `undo:wall:{wallId}` | Redis List | Stack of the last 20 reversible operations for the wall |
+
+**Event streaming** — Every time an opening is created, updated, or deleted, the resulting broadcast event is appended to the wall's Redis Stream via `XADD`. Each entry carries a `nanoid`-based `eventId` for client-side deduplication. Clients that reconnect can call `replayStream` with their last-seen entry ID to receive any events they missed while disconnected.
+
+**Undo stack** — Before each mutating operation is committed, a snapshot of the affected opening (`before` state) is pushed onto the wall's undo list via `RPUSH`. The list is automatically trimmed to the most recent 20 entries (`LTRIM`). When a client triggers an undo, the server pops the top entry (`RPOP`) and uses the stored snapshot to reverse the operation — restoring a deleted or modified opening to its previous state, or removing a newly created one.
+
+All Redis structures expire after **1 hour of inactivity**, keeping memory usage bounded.
+
+> **Note:** This feature has been **disabled in the current deployment**. The AWS ElastiCache instance provisioned to support it incurred ongoing costs that were not justified for a personal project at this scale. The implementation remains in the codebase and can be re-enabled by provisioning a Redis-compatible endpoint and setting the `REDIS_URL` environment variable.
+>
+> The codebase was specifically designed to **degrade gracefully** when Redis is unavailable. All Redis-dependent code paths are guarded by a live connectivity check (`isRedisAvailable`); if Redis is unreachable, each operation returns a safe no-op default — event appends are skipped, undo pushes and pops are silently bypassed, and stream replays return an empty result — ensuring the core application continues to function without interruption.
 
 ---
 
