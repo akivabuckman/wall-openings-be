@@ -1,5 +1,6 @@
 services:
   server:
+    container_name: wall-openings-be
     image: ${ECR_REGISTRY}/wall-openings-be:${GIT_SHA}
     environment:
       NODE_ENV: production
@@ -16,6 +17,7 @@ services:
     restart: unless-stopped
 
   wallopenings-db:
+    container_name: wall-openings-db
     image: postgres:15
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
