@@ -7,7 +7,6 @@ const redisOptions = {
     enableOfflineQueue: false,       // fail commands immediately when disconnected
     lazyConnect: true,               // don't connect until first command
     maxRetriesPerRequest: 0,
-    tls: process.env.NODE_ENV === "production" ? {} : undefined,
 };
 
 export let isRedisAvailable = false;
