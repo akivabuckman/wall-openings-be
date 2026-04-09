@@ -55,6 +55,20 @@ jobs:
         run: |
           docker push ${{ vars.ECR_REGISTRY }}/wall-openings-be:$GIT_SHA
 
+      - name: Install Docker Compose on EC2 if missing
+        uses: appleboy/ssh-action@v0.1.9
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            if ! docker compose version &>/dev/null; then
+              sudo mkdir -p /usr/local/lib/docker/cli-plugins
+              sudo curl -SL https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-linux-x86_64 \
+                -o /usr/local/lib/docker/cli-plugins/docker-compose
+              sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+            fi
+
       - name: Clean up Docker resources on EC2
         uses: appleboy/ssh-action@v0.1.9
         with:
@@ -93,5 +107,5 @@ jobs:
             export POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}'
             export POSTGRES_DB='${{ secrets.POSTGRES_DB }}'
 
-            docker-compose -f /home/ubuntu/compose.prod.yaml pull
-            docker-compose -f /home/ubuntu/compose.prod.yaml up -d
+            docker compose -f /home/ubuntu/compose.prod.yaml pull
+            docker compose -f /home/ubuntu/compose.prod.yaml up -d
