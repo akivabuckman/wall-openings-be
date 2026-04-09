@@ -65,6 +65,15 @@ jobs:
             docker image prune -a -f
             docker volume prune -f
 
+      - name: Copy compose file to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: compose.prod.yaml
+          target: /home/ubuntu
+
       - name: Deploy container on EC2
         uses: appleboy/ssh-action@v0.1.9
         with:
@@ -76,14 +85,13 @@ jobs:
               docker login --username AWS --password-stdin \
               ${{ vars.ECR_REGISTRY }}
 
-            docker pull ${{ vars.ECR_REGISTRY }}/wall-openings-be:${{ env.GIT_SHA }}
-            docker stop wall-openings-be || true
-            docker rm wall-openings-be || true
-            docker run -d \
-              --name wall-openings-be \
-              --network web \
-              -p 127.0.0.1:5000:5000 \
-              -e NODE_ENV=production \
-              -e DATABASE_URL='${{ secrets.DATABASE_URL }}' \
-              -e REDIS_URL='${{ secrets.REDIS_URL }}' \
-              ${{ vars.ECR_REGISTRY }}/wall-openings-be:${{ env.GIT_SHA }}
+            export ECR_REGISTRY=${{ vars.ECR_REGISTRY }}
+            export GIT_SHA=${{ env.GIT_SHA }}
+            export DATABASE_URL='${{ secrets.DATABASE_URL }}'
+            export REDIS_URL='${{ secrets.REDIS_URL }}'
+            export POSTGRES_USER='${{ secrets.POSTGRES_USER }}'
+            export POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}'
+            export POSTGRES_DB='${{ secrets.POSTGRES_DB }}'
+
+            docker compose -f /home/ubuntu/compose.prod.yaml pull
+            docker compose -f /home/ubuntu/compose.prod.yaml up -d

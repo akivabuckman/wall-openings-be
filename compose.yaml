@@ -17,9 +17,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  wallopenings-redis:
+  redis:
     image: redis:7-alpine
-    container_name: wallopenings-redis
+    container_name: redis
     ports:
       - "6379:6379"
     restart: unless-stopped
