@@ -55,6 +55,16 @@ jobs:
         run: |
           docker push ${{ vars.ECR_REGISTRY }}/wall-openings-be:$GIT_SHA
 
+      - name: Install Docker Compose plugin on EC2
+        uses: appleboy/ssh-action@v0.1.9
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo apt-get update -y
+            sudo apt-get install -y docker-compose-plugin
+
       - name: Clean up Docker resources on EC2
         uses: appleboy/ssh-action@v0.1.9
         with:
